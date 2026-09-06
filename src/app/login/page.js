@@ -1,9 +1,11 @@
-'use client'
+"use client"
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
-import glassImage from "../../assets/auth-glass.jpg";
+import glassImage from "@/assets/auth-glass.jpg";
+import { checkEmail, login, setAccessToken } from "@/lib/auth-api";
 import Image from "next/image";
+import Link from "next/link";
 
 function AppleIcon() {
   return (
@@ -81,54 +83,53 @@ function EyeOffIcon() {
   );
 }
 
-export default function Login() {
+export default function LoginPage() {
+  const router = useRouter();
   const emailId = useId();
   const passwordId = useId();
   const [step, setStep] = useState("email");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const onEmailSubmit = async (e) => {
-    e.preventDefault();
+  const onEmailSubmit = async (event) => {
+    event.preventDefault();
     const trimmed = email.trim();
     if (!trimmed) return;
-    setLoading(true);
     setError(null);
+    setLoading(true);
     try {
-      const { exists } = await checkEmailExists({
-        data: { email: trimmed },
-      });
+      const { exists } = await checkEmail(trimmed);
       if (exists) {
         setStep("password");
       } else {
-        navigate({ to: "/signup", search: { email: trimmed } });
+        router.push(`/signup?email=${encodeURIComponent(trimmed)}`);
       }
-    } catch {
-      setError("Something went wrong. Please try again.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setLoading(false);
     }
   };
 
-  const onPasswordSubmit = async (e) => {
-    e.preventDefault();
+  const onPasswordSubmit = async (event) => {
+    event.preventDefault();
     if (!password) return;
-    setLoading(true);
     setError(null);
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
-    setLoading(false);
-    if (signInError) {
-      setError("Incorrect password. Please try again.");
-      return;
+    setLoading(true);
+    try {
+      const result = await login(email.trim(), password);
+      setAccessToken(result.access_token);
+      router.push("/dashboard");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setLoading(false);
     }
-    navigate({ to: "/dashboard" });
   };
+
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-muted px-6 py-12">
@@ -149,7 +150,7 @@ export default function Login() {
                 Sign up or log in
               </h1>
 
-              <form onSubmit={onEmailSubmit} className="mt-8">
+              <form onSubmit={(e) => onEmailSubmit(e)} className="mt-8">
                 <div className="relative">
                   <label
                     htmlFor={emailId}
@@ -263,7 +264,7 @@ export default function Login() {
               <p className="mt-6 text-center text-sm text-muted-foreground">
                 Don&apos;t have an account?{" "}
                 <Link
-                  to="/signup"
+                  href={`/signup?email=${encodeURIComponent(email.trim())}`}
                   search={{ email: email.trim() }}
                   className="font-medium text-foreground underline underline-offset-2"
                 >
