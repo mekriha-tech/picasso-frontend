@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter, useSearchParams  } from "next/navigation";
-import { useId, useState } from "react";
+import { useId, useState, Suspense } from "react";
 import glassImage from "@/assets/auth-glass.jpg";
 import { register, setAccessToken } from "@/lib/auth-api";
 import Image from "next/image";
@@ -85,112 +85,114 @@ export default function SignupPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-muted px-6 py-12">
-      <div className="w-full max-w-5xl rounded-2xl bg-card p-10 shadow-[0_1px_2px_rgba(0,0,0,0.06)] sm:p-14">
-        <div className="grid items-center gap-12 md:grid-cols-2">
-          <Image
-            loading="eager"
-            src={glassImage}
-            alt="Textured frosted glass in warm gold and teal tones"
-            width={880}
-            height={880}
-            className="hidden aspect-square w-full object-cover md:block"
-          />
+    <Suspense fallback={null}>
+      <main className="flex min-h-screen items-center justify-center bg-muted px-6 py-12">
+        <div className="w-full max-w-5xl rounded-2xl bg-card p-10 shadow-[0_1px_2px_rgba(0,0,0,0.06)] sm:p-14">
+          <div className="grid items-center gap-12 md:grid-cols-2">
+            <Image
+              loading="eager"
+              src={glassImage}
+              alt="Textured frosted glass in warm gold and teal tones"
+              width={880}
+              height={880}
+              className="hidden aspect-square w-full object-cover md:block"
+            />
 
-          <div>
-            <form onSubmit={onSubmit} className="space-y-6">
-              <div className="relative">
-                <label
-                  htmlFor={nameId}
-                  className="absolute -top-2 left-3 bg-card px-1 text-xs text-muted-foreground"
-                >
-                  Name
-                </label>
-                <input
-                  id={nameId}
-                  type="text"
-                  autoComplete="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="h-14 w-full rounded-md border border-ring/40 bg-accent px-4 text-base text-foreground outline-none transition-colors focus:border-foreground"
-                />
-              </div>
+            <div>
+              <form onSubmit={onSubmit} className="space-y-6">
+                <div className="relative">
+                  <label
+                    htmlFor={nameId}
+                    className="absolute -top-2 left-3 bg-card px-1 text-xs text-muted-foreground"
+                  >
+                    Name
+                  </label>
+                  <input
+                    id={nameId}
+                    type="text"
+                    autoComplete="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="h-14 w-full rounded-md border border-ring/40 bg-accent px-4 text-base text-foreground outline-none transition-colors focus:border-foreground"
+                  />
+                </div>
 
-              <div className="relative">
-                <label
-                  htmlFor={emailId}
-                  className="absolute -top-2 left-3 bg-card px-1 text-xs text-muted-foreground"
-                >
-                  Email
-                </label>
-                <input
-                  id={emailId}
-                  type="email"
-                  autoComplete="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="h-14 w-full rounded-md border border-ring/40 bg-accent px-4 text-base text-foreground outline-none transition-colors focus:border-foreground"
-                />
-              </div>
+                <div className="relative">
+                  <label
+                    htmlFor={emailId}
+                    className="absolute -top-2 left-3 bg-card px-1 text-xs text-muted-foreground"
+                  >
+                    Email
+                  </label>
+                  <input
+                    id={emailId}
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="h-14 w-full rounded-md border border-ring/40 bg-accent px-4 text-base text-foreground outline-none transition-colors focus:border-foreground"
+                  />
+                </div>
 
-              <div className="relative">
-                <label
-                  htmlFor={passwordId}
-                  className="absolute -top-2 left-3 bg-card px-1 text-xs text-muted-foreground"
-                >
-                  Password
-                </label>
-                <input
-                  id={passwordId}
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="new-password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="h-14 w-full rounded-md border border-ring/40 bg-accent px-4 pr-12 text-base text-foreground outline-none transition-colors focus:border-foreground"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                  aria-pressed={showPassword}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/70 transition-colors hover:text-foreground"
-                >
-                  {showPassword ? <EyeIcon /> : <EyeOffIcon />}
-                </button>
-              </div>
+                <div className="relative">
+                  <label
+                    htmlFor={passwordId}
+                    className="absolute -top-2 left-3 bg-card px-1 text-xs text-muted-foreground"
+                  >
+                    Password
+                  </label>
+                  <input
+                    id={passwordId}
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="h-14 w-full rounded-md border border-ring/40 bg-accent px-4 pr-12 text-base text-foreground outline-none transition-colors focus:border-foreground"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-pressed={showPassword}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/70 transition-colors hover:text-foreground"
+                  >
+                    {showPassword ? <EyeIcon /> : <EyeOffIcon />}
+                  </button>
+                </div>
 
-              <p className="text-sm leading-relaxed text-muted-foreground">
-                Password must be at least 8 characters and include a lowercase
-                letter, uppercase letter, and digit.
-              </p>
-
-              {error && (
-                <p role="alert" className="text-sm text-destructive">
-                  {error}
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  Password must be at least 8 characters and include a lowercase
+                  letter, uppercase letter, and digit.
                 </p>
-              )}
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="h-14 w-full rounded-full bg-primary text-base font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
-              >
-                {loading ? "Signing up…" : "Sign up"}
-              </button>
-            </form>
+                {error && (
+                  <p role="alert" className="text-sm text-destructive">
+                    {error}
+                  </p>
+                )}
 
-            <p className="mt-6 text-center text-sm text-muted-foreground">
-              Already have an account?{" "}
-              <Link
-                href="/"
-                className="font-medium text-foreground underline underline-offset-2"
-              >
-                Log in.
-              </Link>
-            </p>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="h-14 w-full rounded-full bg-primary text-base font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
+                >
+                  {loading ? "Signing up…" : "Sign up"}
+                </button>
+              </form>
+
+              <p className="mt-6 text-center text-sm text-muted-foreground">
+                Already have an account?{" "}
+                <Link
+                  href="/"
+                  className="font-medium text-foreground underline underline-offset-2"
+                >
+                  Log in.
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </Suspense>
   );
 }
