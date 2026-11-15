@@ -18,7 +18,7 @@ export function clearAccessToken() {
   window.localStorage.removeItem(TOKEN_KEY);
 }
 
-async function request(
+export async function request(
   path,
   options = {},
 ) {
@@ -56,10 +56,35 @@ async function request(
       data && typeof data === "object" && "detail" in data
         ? String((data).detail)
         : "Something went wrong. Please try again.";
-    throw new Error(detail);
+    const error = new Error(detail);
+    error.status = res.status;
+    throw error;
   }
 
   return data;
+}
+
+// The access token lives 15 minutes. Refresh once (via the httpOnly refresh cookie) when an
+// authenticated call comes back 401, then retry; if the refresh fails the session is over.
+export async function refreshSession() {
+  const data = await request("/api/v1/auth/refresh", {});
+  setAccessToken(data.access_token);
+  return data.access_token;
+}
+
+export async function authedRequest(path, options = {}) {
+  try {
+    return await request(path, { ...options, auth: true });
+  } catch (err) {
+    if (err?.status !== 401) throw err;
+    try {
+      await refreshSession();
+    } catch {
+      clearAccessToken();
+      throw err;
+    }
+    return request(path, { ...options, auth: true });
+  }
 }
 
 export function checkEmail(email) {
@@ -81,7 +106,7 @@ export function register(email, password, fullName) {
 }
 
 export function getMe() {
-  return request("/api/v1/auth/me", { method: "GET", auth: true });
+  return authedRequest("/api/v1/auth/me", { method: "GET" });
 }
 
 export function logout() {

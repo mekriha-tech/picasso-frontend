@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
 import glassImage from "@/assets/auth-glass.jpg";
 import { checkEmail, login, setAccessToken } from "@/lib/auth-api";
+import { forwardNextParam, postLoginPath } from "@/lib/redirect";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -105,7 +106,7 @@ export default function LoginPage() {
       if (exists) {
         setStep("password");
       } else {
-        router.push(`/signup?email=${encodeURIComponent(trimmed)}`);
+        router.push(`/signup?email=${encodeURIComponent(trimmed)}${forwardNextParam()}`);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -122,7 +123,7 @@ export default function LoginPage() {
     try {
       const result = await login(email.trim(), password);
       setAccessToken(result.access_token);
-      router.push("/dashboard");
+      router.push(postLoginPath());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -264,7 +265,7 @@ export default function LoginPage() {
               <p className="mt-6 text-center text-sm text-muted-foreground">
                 Don&apos;t have an account?{" "}
                 <Link
-                  href={`/signup?email=${encodeURIComponent(email.trim())}`}
+                  href={`/signup?email=${encodeURIComponent(email.trim())}${forwardNextParam()}`}
                   search={{ email: email.trim() }}
                   className="font-medium text-foreground underline underline-offset-2"
                 >
