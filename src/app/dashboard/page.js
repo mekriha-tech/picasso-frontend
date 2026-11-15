@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   clearAccessToken,
-  getAccessToken,
+  initSession,
   getMe,
   logout
 } from "@/lib/auth-api";
@@ -16,13 +16,17 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!getAccessToken()) {
-      router.push("/");
-      return;
-    }
     let active = true;
-    getMe()
+    initSession()
+      .then((token) => {
+        if (!token) {
+          if (active) router.push("/");
+          return null;
+        }
+        return getMe();
+      })
       .then((me) => {
+        if (me === null) return;
         if (active) setUser(me);
       })
       .catch(() => {

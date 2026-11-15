@@ -19,7 +19,7 @@ Art-auction + VR gallery marketplace. This repo is the web client; it consumes t
 - `/artworks/[slug]` artwork detail (client component): image gallery, title/artist/medium/year/size/category, description, price. Handles 401 ("Log in to see more" prompt), 404 and errors. Bid / Buy / Wishlist / VR are `GatedAction` placeholders. Artist name links to the artist page.
 - `/artists/[slug]` artist profile (client): cover, name, medium, years, statement, website/Instagram links (http(s) only), Follow placeholder, works grid (`ArtworkCard`), "Showing a preview" note when the API returns `teaser: true`. 404 and error states. Linked from the detail page, rail cards and artist tiles.
 - `/login`, `/signup` (honour a safe `?next=`, default `/home`), `/dashboard` (old stub).
-- `lib/auth-api.js` (token in localStorage `picasso_access_token`; `authedRequest` refreshes once on 401), `lib/catalogue-api.js`, `lib/redirect.js` (`?next=` safety), `lib/format.js` (`formatINR`; money arrives as strings).
+- `lib/auth-api.js` (access token in **memory only**; localStorage holds just a non-secret `picasso_has_session` hint. `initSession()` restores the token from the httpOnly refresh cookie via `/auth/refresh` after a reload: always `await initSession()` before deciding someone is logged out, never read the token synchronously on mount. `authedRequest` refreshes once on 401), `lib/catalogue-api.js`, `lib/redirect.js` (`?next=` safety), `lib/format.js` (`formatINR`; money arrives as strings).
 
 ## Known issues / not built
 - Next: no artists index/list page yet (the "View All" links in the design); `/artists/[slug]` exists. Then orders/wishlist/auctions once the backend has them.

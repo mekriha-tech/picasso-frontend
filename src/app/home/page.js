@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import GatedAction from "@/components/GatedAction";
 import HomeHeader from "@/components/home/HomeHeader";
 import { ArtistTile, ComingSoon, HomeFooter, Rail, RailCard, Section, Tabs } from "@/components/home/Rails";
-import { clearAccessToken, getAccessToken, getMe, logout } from "@/lib/auth-api";
+import { clearAccessToken, getMe, initSession, logout } from "@/lib/auth-api";
 import { getFeatured, listArtists, listArtworks } from "@/lib/catalogue-api";
 import { loginPath } from "@/lib/redirect";
 
@@ -27,13 +27,13 @@ export default function HomePage() {
   const isArtist = user?.artist_status === "approved";
 
   useEffect(() => {
-    if (!getAccessToken()) {
-      router.replace(loginPath("/home"));
-      return;
-    }
     let active = true;
     (async () => {
       try {
+        if (!(await initSession())) {
+          if (active) router.replace(loginPath("/home"));
+          return;
+        }
         const me = await getMe();
         const [feat, list, artistList] = await Promise.all([
           getFeatured(),

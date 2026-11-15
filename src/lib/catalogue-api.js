@@ -1,4 +1,4 @@
-import { authedRequest, getAccessToken, request } from "./auth-api";
+import { authedRequest, initSession, request } from "./auth-api";
 
 function withQuery(path, params = {}) {
   const search = new URLSearchParams();
@@ -12,9 +12,10 @@ function withQuery(path, params = {}) {
 // Logged in -> send the token and the backend returns the full catalogue. Logged out -> no
 // token, and the backend returns only the teaser (the limit is enforced server-side; see the
 // backend docs/API_REFERENCE.md "Public catalogue").
-function get(path, params) {
+async function get(path, params) {
   const url = withQuery(path, params);
-  return getAccessToken() ? authedRequest(url, { method: "GET" }) : request(url, { method: "GET" });
+  // Wait for a possible session restore so a reload does not briefly show the logged-out teaser.
+  return (await initSession()) ? authedRequest(url, { method: "GET" }) : request(url, { method: "GET" });
 }
 
 export const getFeatured = () => get("/api/v1/artworks/featured");
