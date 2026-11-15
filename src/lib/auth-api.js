@@ -1,5 +1,9 @@
+// Browser calls go to our own origin (/api/* is proxied to the backend by next.config.js) so the
+// refresh cookie is first-party. Server-side fetches have no origin, so they hit the backend directly.
 export const API_BASE_URL =
-  "https://picasso-backend-production.up.railway.app";
+  typeof window === "undefined"
+    ? (process.env.BACKEND_URL ?? "https://picasso-backend-production.up.railway.app")
+    : "";
 
 const TOKEN_KEY = "picasso_access_token";
 
