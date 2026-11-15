@@ -16,11 +16,13 @@ Art-auction + VR gallery marketplace. This repo is the web client; it consumes t
 ## What exists
 - `/` logged-out landing (server component, fetches teaser via `lib/catalogue-server.js`, revalidates every 60s).
 - `/home` logged-in home (client, auth guard, featured + full collection with cursor "Load more").
+- `/artworks/[slug]` artwork detail (client component): image gallery, title/artist/medium/year/size/category, description, price. Handles 401 ("Log in to see more" prompt), 404 and errors. Bid / Buy / Wishlist / VR are `GatedAction` placeholders. Artist name is plain text until artist pages exist.
 - `/login`, `/signup` (honour a safe `?next=`, default `/home`), `/dashboard` (old stub).
 - `lib/auth-api.js` (token in localStorage `picasso_access_token`; `authedRequest` refreshes once on 401), `lib/catalogue-api.js`, `lib/redirect.js` (`?next=` safety), `lib/format.js` (`formatINR`; money arrives as strings).
 
 ## Known issues / not built
-- Artwork card links go to `/artworks/[slug]`, which does not exist yet (404). Next: artwork detail, artist pages.
+- Next: artist pages (`/artists/[slug]`), then link the artist name on the detail page.
+- Figma: the user's file (key `dXP0ZeDxrfe28mGr44hp6y`, and a copy `snOLPIpiFTwi4HpVxPJw3O`) is unreadable via MCP ("no edit access", View seat). The user gave PNG exports instead (artist landing page, bidder verification modal): light grey page bg, maroon accent, bold grotesk headings, black pill buttons, small coloured tag on cards. No artwork-detail design exists yet, so the detail page uses structural styling.
 - Refresh cookie is cross-site (Netlify vs Railway), so sessions drop after 15 min until the Netlify `/api/*` proxy rewrite lands (frontend issue #5; backend #18 tightens CORS afterwards).
 - Backend does not yet have: auctions/bids, wishlist, testimonials, image upload/CDN, Studio, password reset. UI for these must stay placeholders.
 - Production data is smoke-test data with `example.com` images, so real artwork images will not show (backend #20).
