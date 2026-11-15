@@ -57,7 +57,7 @@ export function RailCard({ artwork }) {
   return (
     <article className="w-56 shrink-0 snap-start md:w-60">
       <Link href={`/artworks/${artwork.slug}`} className="relative block aspect-[4/5] overflow-hidden rounded-md bg-card">
-        <ArtImage src={artwork.primary_image_url} alt={artwork.title} className="h-full w-full" />
+        <ArtImage src={artwork.primary_image_url} alt={artwork.title} className="h-full w-full bg-card!" />
         <span className="absolute left-2 top-2 rounded bg-brand px-2 py-0.5 text-xs text-brand-foreground">
           {tag}
         </span>
@@ -100,7 +100,7 @@ export function ArtistTile({ artist }) {
   return (
     <div className="w-56 shrink-0 snap-start md:w-72">
       <div className="aspect-[4/5] overflow-hidden rounded-md bg-card">
-        <ArtImage src={artist.cover_image_url} alt={artist.display_name} className="h-full w-full" />
+        <ArtImage src={artist.cover_image_url} alt={artist.display_name} className="h-full w-full bg-card!" />
       </div>
       <div className="mt-2 flex items-center justify-between gap-2">
         <div className="min-w-0">
