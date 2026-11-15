@@ -136,7 +136,10 @@ export default function ArtworkPage() {
           </p>
           <h1 className="mt-2 text-3xl font-medium tracking-tight">{a.title}</h1>
           <p className="mt-1 text-muted-foreground">
-            by {a.artist?.display_name}
+            by{" "}
+            <Link href={`/artists/${a.artist?.slug}`} className="underline">
+              {a.artist?.display_name}
+            </Link>
             {meta.length > 0 && <> · {meta.join(" · ")}</>}
           </p>
 
