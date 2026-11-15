@@ -5,21 +5,62 @@ export const API_BASE_URL =
     ? (process.env.BACKEND_URL ?? "https://picasso-backend-production.up.railway.app")
     : "";
 
-const TOKEN_KEY = "picasso_access_token";
+// The access token lives in memory only, so an XSS bug cannot read it from storage. After a
+// reload it is restored from the httpOnly refresh cookie via /auth/refresh (see initSession).
+// localStorage holds only a non-secret hint that a session may exist, so visitors who never
+// logged in do not hit /auth/refresh on every page load.
+const SESSION_HINT_KEY = "picasso_has_session";
+const LEGACY_TOKEN_KEY = "picasso_access_token";
+
+let accessToken = null;
+let restoring = null;
+
+function storage() {
+  if (typeof window === "undefined") return null;
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
 
 export function getAccessToken() {
-  if (typeof window === "undefined") return null;
-  return window.localStorage.getItem(TOKEN_KEY);
+  return accessToken;
 }
 
 export function setAccessToken(token) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(TOKEN_KEY, token);
+  accessToken = token;
+  storage()?.setItem(SESSION_HINT_KEY, "1");
 }
 
 export function clearAccessToken() {
-  if (typeof window === "undefined") return;
-  window.localStorage.removeItem(TOKEN_KEY);
+  accessToken = null;
+  storage()?.removeItem(SESSION_HINT_KEY);
+}
+
+// Resolves to the access token, restoring it from the refresh cookie if needed, or null when
+// logged out. Await this before deciding whether the visitor is logged in (page load, guards,
+// gated actions). Concurrent callers share one refresh.
+export function initSession() {
+  if (accessToken) return Promise.resolve(accessToken);
+  const store = storage();
+  if (!store) return Promise.resolve(null);
+  // One-off migration: drop a token left in localStorage by older versions.
+  if (store.getItem(LEGACY_TOKEN_KEY) !== null) {
+    store.removeItem(LEGACY_TOKEN_KEY);
+    store.setItem(SESSION_HINT_KEY, "1");
+  }
+  if (!store.getItem(SESSION_HINT_KEY)) return Promise.resolve(null);
+  restoring ??= refreshSession()
+    .catch((err) => {
+      // Only a 401 means the session is really gone; a network error keeps the hint for next time.
+      if (err?.status === 401) clearAccessToken();
+      return null;
+    })
+    .finally(() => {
+      restoring = null;
+    });
+  return restoring;
 }
 
 export async function request(
@@ -30,7 +71,7 @@ export async function request(
     "Content-Type": "application/json",
   };
   if (options.auth) {
-    const token = getAccessToken();
+    const token = await initSession();
     if (token) headers["Authorization"] = `Bearer ${token}`;
   }
 
