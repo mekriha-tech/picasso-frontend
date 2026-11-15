@@ -148,3 +148,9 @@
     color: var(--color-foreground);
   }
 }
+@keyframes vr-drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(-35%); }
+}
+.vr-drift { animation: vr-drift 14s ease-in-out infinite alternate; width: 200%; }
+@media (prefers-reduced-motion: reduce) { .vr-drift { animation: none; } }

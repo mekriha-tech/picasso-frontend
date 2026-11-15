@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams  } from "next/navigation";
 import { useId, useState } from "react";
 import { register, setAccessToken } from "@/lib/auth-api";
+import { postLoginPath } from "@/lib/redirect";
 
 const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
@@ -74,7 +75,7 @@ export function SignupForm() {
     try {
       const result = await register(trimmedEmail, password, name.trim());
       setAccessToken(result.access_token);
-      router.push("/dashboard");
+      router.push(postLoginPath());
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
