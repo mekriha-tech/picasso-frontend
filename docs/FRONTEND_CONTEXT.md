@@ -21,7 +21,7 @@ Art-auction + VR gallery marketplace. This repo is the web client; it consumes t
 
 ## Known issues / not built
 - Artwork card links go to `/artworks/[slug]`, which does not exist yet (404). Next: artwork detail, artist pages.
-- Refresh cookie is cross-site (Netlify vs Railway), so sessions drop after 15 min until the Netlify `/api/*` proxy rewrite lands (frontend issue #5; backend #18 tightens CORS afterwards).
+- `/api/*` is proxied to the backend by `rewrites()` in `next.config.js` (host-independent; backend URL overridable via `BACKEND_URL`). Browser code uses a same-origin `API_BASE_URL` (`""`), server code hits the backend directly. Once merged, verify on Netlify that the refresh cookie persists a session past 15 min (frontend #5), then backend #18 can tighten CORS.
 - Backend does not yet have: auctions/bids, wishlist, testimonials, image upload/CDN, Studio, password reset. UI for these must stay placeholders.
 - Production data is smoke-test data with `example.com` images, so real artwork images will not show (backend #20).
 - `package-lock.json` is out of sync (`npm ci` fails; `npm install` fixes it) — commit the regenerated lockfile on its own.
