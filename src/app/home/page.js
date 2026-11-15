@@ -1,46 +1,30 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import ArtworkCard from "@/components/ArtworkCard";
 import GatedAction from "@/components/GatedAction";
-import SiteHeader from "@/components/home/SiteHeader";
+import HomeHeader from "@/components/home/HomeHeader";
+import { ArtistTile, ComingSoon, HomeFooter, Rail, RailCard, Section, Tabs } from "@/components/home/Rails";
 import { clearAccessToken, getAccessToken, getMe, logout } from "@/lib/auth-api";
-import { getFeatured, listArtworks } from "@/lib/catalogue-api";
+import { getFeatured, listArtists, listArtworks } from "@/lib/catalogue-api";
 import { loginPath } from "@/lib/redirect";
 
-const btn = "rounded-full bg-primary px-5 py-2.5 text-sm text-primary-foreground";
-
-function Section({ title, children }) {
-  return (
-    <section className="mx-auto max-w-6xl px-6 py-10">
-      <h2 className="mb-6 text-2xl font-medium tracking-tight">{title}</h2>
-      {children}
-    </section>
-  );
-}
-
-function Grid({ items }) {
-  if (!items?.length) return <p className="text-muted-foreground">Nothing here yet.</p>;
-  return (
-    <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 lg:grid-cols-4">
-      {items.map((a) => (
-        <ArtworkCard key={a.id} artwork={a} />
-      ))}
-    </div>
-  );
-}
+const pill = "rounded-full px-5 py-2 text-sm";
 
 export default function HomePage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [featured, setFeatured] = useState(null);
   const [artworks, setArtworks] = useState([]);
+  const [artists, setArtists] = useState([]);
   const [nextCursor, setNextCursor] = useState(null);
+  const [query, setQuery] = useState("");
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
-  const [vrNote, setVrNote] = useState(false);
+  const [vrNote, setVrNote] = useState("");
+
+  // Normal users (viewers/buyers) and artists share this page; artists get extra menu items.
+  const isArtist = user?.artist_status === "approved";
 
   useEffect(() => {
     if (!getAccessToken()) {
@@ -51,12 +35,17 @@ export default function HomePage() {
     (async () => {
       try {
         const me = await getMe();
-        const [feat, list] = await Promise.all([getFeatured(), listArtworks({ limit: 12 })]);
+        const [feat, list, artistList] = await Promise.all([
+          getFeatured(),
+          listArtworks({ limit: 12 }),
+          listArtists({ limit: 6 }).catch(() => ({ items: [] })),
+        ]);
         if (!active) return;
         setUser(me);
         setFeatured(feat);
         setArtworks(list.items);
         setNextCursor(list.next_cursor);
+        setArtists(artistList.items);
       } catch (err) {
         if (!active) return;
         if (err?.status === 401) {
@@ -72,10 +61,22 @@ export default function HomePage() {
     };
   }, [router]);
 
+  async function search(q) {
+    setQuery(q);
+    setError("");
+    try {
+      const page = await listArtworks({ limit: 12, q });
+      setArtworks(page.items);
+      setNextCursor(page.next_cursor);
+    } catch (err) {
+      setError(err?.message ?? "Something went wrong. Please try again.");
+    }
+  }
+
   async function loadMore() {
     setLoadingMore(true);
     try {
-      const page = await listArtworks({ limit: 12, cursor: nextCursor });
+      const page = await listArtworks({ limit: 12, cursor: nextCursor, q: query });
       setArtworks((prev) => [...prev, ...page.items]);
       setNextCursor(page.next_cursor);
     } catch (err) {
@@ -99,68 +100,122 @@ export default function HomePage() {
     return <main className="flex min-h-screen items-center justify-center text-muted-foreground">Loading…</main>;
   }
 
+  // "Curated for you" has no recommendation engine behind it yet: featured works for now.
+  const curated = [...(featured?.sale ?? []), ...(featured?.auction ?? []), ...(featured?.display ?? [])];
+
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <SiteHeader
-        right={
-          <>
-            <span className="text-muted-foreground">{user?.full_name}</span>
-            <button type="button" onClick={signOut}>
-              Log out
-            </button>
-          </>
-        }
-      />
+    <div className="min-h-screen bg-muted text-foreground">
+      <HomeHeader user={user} isArtist={isArtist} onSearch={search} onSignOut={signOut} />
       {error && (
-        <p role="alert" className="mx-auto max-w-6xl px-6 pt-6 text-destructive">
+        <p role="alert" className="mx-auto max-w-7xl px-6 pt-6 text-destructive">
           {error}
         </p>
       )}
 
-      <section className="mx-auto max-w-6xl px-6 pt-14">
-        <h1 className="text-4xl font-medium tracking-tight">
-          Welcome back{user?.full_name ? `, ${user.full_name.split(" ")[0]}` : ""}
-        </h1>
+      <section className="bg-gradient-to-b from-neutral-700 to-neutral-950 text-white">
+        <div className="mx-auto max-w-7xl px-6 pb-8 pt-16 md:pt-24">
+          <h1 className="text-6xl font-bold tracking-tight text-white/70 md:text-8xl">PICASSO</h1>
+          <p className="mt-3 text-xl text-white/90 md:text-2xl">Where Art Finds Its Audience</p>
+          <div className="mt-10 flex flex-col gap-5 rounded-xl bg-white/15 p-5 backdrop-blur md:flex-row md:items-center">
+            <div className="md:w-72">
+              <p className="font-medium">VR Gallery</p>
+              <p className="mt-1 text-xs text-white/80">
+                Join here to be part of the exhibition &amp; showcase your art.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <GatedAction
+                  className={`${pill} bg-black text-white`}
+                  onAllowed={() => setVrNote("The virtual gallery is coming soon.")}
+                >
+                  Enter the gallery
+                </GatedAction>
+                {isArtist && (
+                  <GatedAction
+                    className={`${pill} border border-white/70`}
+                    onAllowed={() => setVrNote("Artwork submission is coming soon.")}
+                  >
+                    Submit Artwork
+                  </GatedAction>
+                )}
+              </div>
+              {vrNote && (
+                <p role="status" className="mt-2 text-xs text-white/80">
+                  {vrNote}
+                </p>
+              )}
+            </div>
+            {/* PLACEHOLDER preview strip until a real VR clip/provider is connected. */}
+            <div
+              role="img"
+              aria-label="Preview of the virtual gallery"
+              className="relative h-28 flex-1 overflow-hidden rounded-lg bg-white/10 md:h-32"
+            >
+              <div className="vr-drift absolute inset-0 flex gap-4 p-3">
+                {[0, 1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="h-full w-1/5 shrink-0 rounded bg-white/25" />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* VR: placeholder for the gallery-provider integration (e.g. Artsteps). */}
-      <Section title="Virtual gallery">
-        <div className="flex flex-col items-start gap-4 rounded-xl bg-muted p-8">
-          <p className="max-w-xl text-muted-foreground">
-            Enter an immersive exhibition. This will open the gallery provider (e.g. Artsteps) once connected.
-          </p>
-          <GatedAction className={btn} onAllowed={() => setVrNote(true)}>
-            Enter the gallery
-          </GatedAction>
-          {vrNote && <p className="text-sm text-muted-foreground">The virtual gallery is coming soon.</p>}
-        </div>
-      </Section>
-
-      {featured?.auction?.length > 0 && (
-        <Section title="Live auctions">
-          <Grid items={featured.auction} />
-        </Section>
-      )}
-      {featured?.sale?.length > 0 && (
-        <Section title="Featured for sale">
-          <Grid items={featured.sale} />
-        </Section>
-      )}
-
-      <Section title="The collection">
-        <Grid items={artworks} />
+      <Section title={query ? `Results for “${query}”` : "Artworks"}>
+        <Tabs tabs={["Newest", "Recently Viewed", "Wishlists Preview"]} active="Newest" />
+        {artworks.length ? (
+          <Rail label="Artworks">
+            {artworks.map((a) => (
+              <RailCard key={a.id} artwork={a} />
+            ))}
+          </Rail>
+        ) : (
+          <p className="text-muted-foreground">{query ? "No artworks match your search." : "Nothing here yet."}</p>
+        )}
         {nextCursor && (
-          <div className="mt-10 text-center">
-            <button type="button" onClick={loadMore} disabled={loadingMore} className={btn}>
+          <div className="mt-6 text-center">
+            <button type="button" onClick={loadMore} disabled={loadingMore} className={`${pill} bg-primary text-primary-foreground`}>
               {loadingMore ? "Loading…" : "Load more"}
             </button>
           </div>
         )}
       </Section>
 
-      <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
-        <Link href="/">© Picasso</Link>
-      </footer>
+      {curated.length > 0 && !query && (
+        <Section title="Curated for you">
+          <Rail label="Curated for you">
+            {curated.map((a) => (
+              <RailCard key={a.id} artwork={a} />
+            ))}
+          </Rail>
+        </Section>
+      )}
+
+      <Section title="Auctions">
+        <Tabs tabs={["Live", "Upcoming", "Past"]} active="Live" />
+        <ComingSoon>Live auctions and bidding are coming soon.</ComingSoon>
+      </Section>
+
+      <Section title="Art Exhibitions">
+        <ComingSoon>Exhibitions are coming soon.</ComingSoon>
+      </Section>
+
+      <Section title="Explore Artists">
+        {artists.length ? (
+          <Rail label="Artists">
+            {artists.map((a) => (
+              <ArtistTile key={a.slug} artist={a} />
+            ))}
+          </Rail>
+        ) : (
+          <p className="text-muted-foreground">No artists to show yet.</p>
+        )}
+      </Section>
+
+      <Section title="Testimonials">
+        <ComingSoon>Collector and artist stories are coming soon.</ComingSoon>
+      </Section>
+
+      <HomeFooter />
     </div>
   );
 }

@@ -15,7 +15,7 @@ Art-auction + VR gallery marketplace. This repo is the web client; it consumes t
 
 ## What exists
 - `/` logged-out landing (server component, fetches teaser via `lib/catalogue-server.js`, revalidates every 60s).
-- `/home` logged-in home (client, auth guard, featured + full collection with cursor "Load more").
+- `/home` logged-in home (client, auth guard), restyled to the user's design (grey page, maroon `--brand` token, header with search + account menu, dark hero with VR card, horizontal rails). Real data: Artworks (cursor "Load more", `q` search from header), Curated for you (featured, no recommender yet), Explore Artists. Placeholders: Auctions, Art Exhibitions, Testimonials, Follow, wishlist heart, account-menu pages (shown as "soon"). Two user kinds: artists (`artist_status === "approved"` from `/auth/me`) additionally get My Artworks / My Exhibitions / Stats and a Submit Artwork button; viewers/buyers do not. Components in `components/home/` (`HomeHeader`, `Rails`).
 - `/artworks/[slug]` artwork detail (client component): image gallery, title/artist/medium/year/size/category, description, price. Handles 401 ("Log in to see more" prompt), 404 and errors. Bid / Buy / Wishlist / VR are `GatedAction` placeholders. Artist name is plain text until artist pages exist.
 - `/login`, `/signup` (honour a safe `?next=`, default `/home`), `/dashboard` (old stub).
 - `lib/auth-api.js` (token in localStorage `picasso_access_token`; `authedRequest` refreshes once on 401), `lib/catalogue-api.js`, `lib/redirect.js` (`?next=` safety), `lib/format.js` (`formatINR`; money arrives as strings).
