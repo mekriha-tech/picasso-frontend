@@ -65,7 +65,12 @@ export function RailCard({ artwork }) {
       <div className="mt-2 flex items-start justify-between gap-2">
         <div className="min-w-0">
           <h3 className="truncate text-sm font-semibold">{artwork.title}</h3>
-          <p className="truncate text-xs text-muted-foreground">By {artwork.artist?.display_name}</p>
+          <p className="truncate text-xs text-muted-foreground">
+            By{" "}
+            <Link href={`/artists/${artwork.artist?.slug}`} className="hover:underline">
+              {artwork.artist?.display_name}
+            </Link>
+          </p>
           <p className="mt-0.5 text-xs text-brand">{price ?? "Not for sale"}</p>
         </div>
         <div className="flex shrink-0 gap-1.5">
@@ -94,17 +99,18 @@ export function RailCard({ artwork }) {
   );
 }
 
-// No profile page yet (artist pages are not built), so the tile is not a link.
 export function ArtistTile({ artist }) {
   const [note, setNote] = useState(false);
   return (
     <div className="w-56 shrink-0 snap-start md:w-72">
-      <div className="aspect-[4/5] overflow-hidden rounded-md bg-card">
+      <Link href={`/artists/${artist.slug}`} className="block aspect-[4/5] overflow-hidden rounded-md bg-card">
         <ArtImage src={artist.cover_image_url} alt={artist.display_name} className="h-full w-full bg-card!" />
-      </div>
+      </Link>
       <div className="mt-2 flex items-center justify-between gap-2">
         <div className="min-w-0">
-          <p className="truncate text-sm font-semibold">{artist.display_name}</p>
+          <Link href={`/artists/${artist.slug}`} className="block truncate text-sm font-semibold hover:underline">
+            {artist.display_name}
+          </Link>
           <p className="truncate text-xs text-muted-foreground">{artist.primary_medium}</p>
         </div>
         <GatedAction
