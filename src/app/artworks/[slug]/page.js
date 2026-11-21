@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import ArtImage from "@/components/ArtImage";
 import GatedAction from "@/components/GatedAction";
@@ -36,6 +36,7 @@ function Message({ title, children }) {
 export default function ArtworkPage() {
   const { slug } = useParams();
   const pathname = usePathname();
+  const router = useRouter();
   const [artwork, setArtwork] = useState(null);
   const [state, setState] = useState("loading"); // loading | ok | login | notfound | error
   const [active, setActive] = useState(0);
@@ -159,7 +160,7 @@ export default function ArtworkPage() {
             <Detail label="Category" value={a.category} />
           </dl>
 
-          {/* Bidding, purchase, wishlist and VR are not in the backend yet: gated placeholders. */}
+          {/* Bidding, purchase and wishlist are not in the backend yet: gated placeholders. */}
           <div className="mt-8 flex flex-wrap gap-3">
             {a.listing_type === "auction" && (
               <GatedAction
@@ -185,7 +186,7 @@ export default function ArtworkPage() {
             </GatedAction>
             <GatedAction
               className={`${pill} border border-border-strong`}
-              onAllowed={() => setNote("The VR gallery is coming soon.")}
+              onAllowed={() => router.push("/gallery")}
             >
               View in VR gallery
             </GatedAction>

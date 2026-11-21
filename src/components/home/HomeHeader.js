@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
-const EXPLORE = ["Artworks", "Auctions", "Upcoming Exhibition", "VR Gallery"];
+const EXPLORE = [{ label: "Artworks" }, { label: "Auctions" }, { label: "Upcoming Exhibition" }, { label: "VR Gallery", href: "/gallery" }];
 
 // Account menu. Pages that are not built yet are shown but disabled, so the structure matches the
 // design without linking to 404s. Viewers/buyers do not get the artist items.
@@ -48,11 +48,19 @@ export default function HomeHeader({ user, isArtist, onSearch, onSignOut }) {
             </button>
             {exploreOpen && (
               <ul className="absolute left-0 top-full mt-2 w-48 rounded-lg border border-border bg-popover p-2 text-sm shadow-md">
-                {EXPLORE.map((item) => (
-                  <li key={item} className="px-3 py-1.5 text-muted-foreground">
-                    {item} <span className="text-xs">· soon</span>
-                  </li>
-                ))}
+                {EXPLORE.map((item) =>
+                  item.href ? (
+                    <li key={item.label}>
+                      <Link href={item.href} className="block px-3 py-1.5">
+                        {item.label}
+                      </Link>
+                    </li>
+                  ) : (
+                    <li key={item.label} className="px-3 py-1.5 text-muted-foreground">
+                      {item.label} <span className="text-xs">· soon</span>
+                    </li>
+                  ),
+                )}
               </ul>
             )}
           </div>
