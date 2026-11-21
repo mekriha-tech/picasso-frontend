@@ -32,5 +32,5 @@ Art-auction + VR gallery marketplace. This repo is the web client; it consumes t
 
 ## Conventions
 - Colors via the oklch tokens in `globals.css`; no hard-coded hex.
-- Artwork images use `components/ArtImage.js` (plain `<img>` with fallback), not `next/image`.
+- Artwork images use `components/ArtImage.js` (plain `<img>` with fallback), not `next/image`. It does **not** set a fit: callers pass `object-cover` (cropped 4:5 cards) or `object-contain` (show the whole image, e.g. the detail page), and `fallbackClassName` to size the placeholder. There is no image-host allowlist (no `remotePatterns`/CSP), so any host the API returns renders (R2, Cloudinary, Wikimedia on staging); keep it that way and use URLs exactly as returned.
 - Verify before PRs: `npm run lint` and `npm run build`, plus a browser check.
