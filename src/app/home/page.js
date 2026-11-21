@@ -22,7 +22,7 @@ export default function HomePage() {
   const [query, setQuery] = useState("");
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
-  const [vrNote, setVrNote] = useState("");
+  const [heroNote, setHeroNote] = useState("");
 
   // Normal users (viewers/buyers) and artists share this page; artists get extra menu items.
   const isArtist = user?.artist_status === "approved";
@@ -126,22 +126,22 @@ export default function HomePage() {
               <div className="mt-4 flex flex-wrap gap-2">
                 <GatedAction
                   className={`${pill} bg-black text-white`}
-                  onAllowed={() => setVrNote("The virtual gallery is coming soon.")}
+                  onAllowed={() => router.push("/gallery")}
                 >
                   Enter the gallery
                 </GatedAction>
                 {isArtist && (
                   <GatedAction
                     className={`${pill} border border-white/70`}
-                    onAllowed={() => setVrNote("Artwork submission is coming soon.")}
+                    onAllowed={() => setHeroNote("Artwork submission is coming soon.")}
                   >
                     Submit Artwork
                   </GatedAction>
                 )}
               </div>
-              {vrNote && (
+              {heroNote && (
                 <p role="status" className="mt-2 text-xs text-white/80">
-                  {vrNote}
+                  {heroNote}
                 </p>
               )}
             </div>
