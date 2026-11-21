@@ -1,9 +1,7 @@
 // Browser calls go to our own origin (/api/* is proxied to the backend by next.config.js) so the
 // refresh cookie is first-party. Server-side fetches have no origin, so they hit the backend directly.
-export const API_BASE_URL =
-  typeof window === "undefined"
-    ? (process.env.BACKEND_URL ?? "https://picasso-backend-production.up.railway.app")
-    : "";
+// BACKEND_URL is resolved once in next.config.js (staging unless it is the production deploy).
+export const API_BASE_URL = typeof window === "undefined" ? process.env.BACKEND_URL : "";
 
 // The access token lives in memory only, so an XSS bug cannot read it from storage. After a
 // reload it is restored from the httpOnly refresh cookie via /auth/refresh (see initSession).

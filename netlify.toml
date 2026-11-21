@@ -1,0 +1,12 @@
+# Which backend each Netlify deploy talks to (read by next.config.js).
+# Production deploys use the production backend; everything else uses staging.
+# If BACKEND_URL is also set in the Netlify UI, check which one wins for your site.
+
+[context.production.environment]
+  BACKEND_URL = "https://picasso-backend-production.up.railway.app"
+
+[context.branch-deploy.environment]
+  BACKEND_URL = "https://picasso-backend-staging.up.railway.app"
+
+[context.deploy-preview.environment]
+  BACKEND_URL = "https://picasso-backend-staging.up.railway.app"
