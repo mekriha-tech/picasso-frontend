@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import GatedAction from "@/components/GatedAction";
@@ -199,7 +200,14 @@ export default function HomePage() {
         <ComingSoon>Exhibitions are coming soon.</ComingSoon>
       </Section>
 
-      <Section title="Explore Artists">
+      <Section
+        title="Explore Artists"
+        action={
+          <Link href="/artists" className="text-sm font-medium">
+            View All →
+          </Link>
+        }
+      >
         {artists.length ? (
           <Rail label="Artists">
             {artists.map((a) => (

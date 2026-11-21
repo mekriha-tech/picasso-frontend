@@ -99,10 +99,11 @@ export function RailCard({ artwork }) {
   );
 }
 
-export function ArtistTile({ artist }) {
+// `className` sets the width: the default fits a horizontal rail, pass "w-full" inside a grid.
+export function ArtistTile({ artist, className = "w-56 shrink-0 snap-start md:w-72" }) {
   const [note, setNote] = useState(false);
   return (
-    <div className="w-56 shrink-0 snap-start md:w-72">
+    <div className={className}>
       <Link href={`/artists/${artist.slug}`} className="block aspect-[4/5] overflow-hidden rounded-md bg-card">
         <ArtImage src={artist.cover_image_url} alt={artist.display_name} className="h-full w-full object-cover bg-card!" />
       </Link>
