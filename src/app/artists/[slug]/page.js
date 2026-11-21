@@ -86,7 +86,7 @@ export default function ArtistPage() {
       <>
         <section className="mx-auto grid max-w-6xl gap-10 px-6 py-10 md:grid-cols-[2fr_3fr]">
           <div className="aspect-[4/5] overflow-hidden bg-muted">
-            <ArtImage src={a.cover_image_url} alt={a.display_name} className="h-full w-full" />
+            <ArtImage src={a.cover_image_url} alt={a.display_name} className="h-full w-full object-cover" />
           </div>
           <div>
             <h1 className="text-4xl font-semibold tracking-tight">{a.display_name}</h1>

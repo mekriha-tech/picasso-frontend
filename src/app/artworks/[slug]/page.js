@@ -102,11 +102,12 @@ export default function ArtworkPage() {
     body = (
       <div className="mx-auto grid max-w-6xl gap-10 px-6 py-10 md:grid-cols-[3fr_2fr]">
         <div>
-          <div className="bg-muted">
+          <div className="flex justify-center bg-muted">
             <ArtImage
               src={current.url}
               alt={current.alt_text || a.title}
-              className="min-h-80 max-h-[75vh] w-full object-contain"
+              className="h-auto max-h-[75vh] w-auto max-w-full object-contain"
+              fallbackClassName="h-80 w-full"
             />
           </div>
           {images.length > 1 && (
@@ -122,7 +123,7 @@ export default function ArtworkPage() {
                       i === active ? "ring-2 ring-foreground" : "opacity-70"
                     }`}
                   >
-                    <ArtImage src={img.url} alt="" className="h-full w-full" />
+                    <ArtImage src={img.url} alt="" className="h-full w-full object-contain" />
                   </button>
                 </li>
               ))}

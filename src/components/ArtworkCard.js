@@ -12,7 +12,7 @@ export default function ArtworkCard({ artwork, href }) {
         <ArtImage
           src={artwork.primary_image_url}
           alt={artwork.title}
-          className="h-full w-full transition-transform duration-500 group-hover:scale-[1.03]"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
         />
       </div>
       <div className="mt-3 flex items-start justify-between gap-3">
